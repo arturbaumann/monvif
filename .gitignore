@@ -21,3 +21,9 @@ dist/
 *.work.sum
 cameras.tsv
 cameras.tsv
+
+# Local/private camera inventories
+cameras.tsv
+cameras.tsv~
+*.tsv~
+diagnostics.md
