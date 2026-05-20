@@ -38,4 +38,5 @@ func init() {
 	rootCmd.AddCommand(snapshotURICmd)
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(imagingCmd)
+	rootCmd.AddCommand(networkCmd)
 }

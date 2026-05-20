@@ -245,6 +245,60 @@ brightness  50      60
 
 Only the fields you specify are changed — all other settings are preserved.
 
+### network
+
+Read-only network inspection commands:
+
+```bash
+export MONVIF_PASSWORD=secret
+
+# Full network summary
+./monvif network get --ip 172.17.17.27 --port 81 --user ha
+./monvif network get --ip 172.17.17.27 --port 81 --user ha --format json | jq .
+
+# Individual queries
+./monvif network interfaces --ip 172.17.17.27 --port 81 --user ha
+./monvif network protocols  --ip 172.17.17.27 --port 81 --user ha
+./monvif network dns        --ip 172.17.17.27 --port 81 --user ha
+./monvif network ntp        --ip 172.17.17.27 --port 81 --user ha
+./monvif network hostname   --ip 172.17.17.27 --port 81 --user ha
+```
+
+Always run `network interfaces` first to find the interface token before using `set-ip`.
+
+Network write commands (require `--yes` to apply, support `--dry-run` to preview):
+
+```bash
+# Preview IP change (no modification)
+./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
+  --interface <token> --dhcp --dry-run
+
+./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
+  --interface <token> --address 172.17.17.27 --prefix-length 24 \
+  --gateway 172.17.17.1 --dry-run
+
+# Preview DNS/NTP/hostname changes
+./monvif network set-dns      --ip 172.17.17.27 --port 81 --user ha --server 172.17.17.1 --dry-run
+./monvif network set-ntp      --ip 172.17.17.27 --port 81 --user ha --server se.pool.ntp.org --dry-run
+./monvif network set-hostname --ip 172.17.17.27 --port 81 --user ha --name front --dry-run
+
+# Apply (use only when physically able to recover the camera):
+./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
+  --interface <token> --address 172.17.17.27 --prefix-length 24 \
+  --gateway 172.17.17.1 --yes
+```
+
+**Network safety rules:**
+
+- Network write commands can make cameras permanently unreachable.
+- Always run the read-only commands first to understand the current state.
+- Always use `--dry-run` before applying any change.
+- Use `--yes` only when you are physically or operationally able to recover the camera.
+- Some cameras require a reboot after network changes (reported in the output).
+- Some ONVIF cameras expose read-only network APIs or have incomplete `Set*` support.
+- `--dhcp` and `--yes`/`--dry-run` are mutually exclusive with their counterparts.
+- Due to a library limitation, `set-dns` and `set-ntp` only send the first `--server` value to the camera.
+
 ## Security
 
 - **Use `MONVIF_PASSWORD`** instead of `--password` to keep credentials out
