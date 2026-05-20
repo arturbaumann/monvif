@@ -1,0 +1,22 @@
+# Binary
+monvif
+monvif-*
+
+# Secrets and local test config
+.env
+*.env
+credentials.json
+secrets/
+
+# Local test camera files
+testdata/local/
+cameras.local.yaml
+cameras.local.json
+
+# Build artifacts
+dist/
+
+# Go workspace
+*.work
+*.work.sum
+cameras.tsv
