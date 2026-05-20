@@ -346,6 +346,112 @@ monvif info --ip 192.168.1.42 --port 8080 --user admin
 
 Default ONVIF port is 80.
 
+### diagnose
+
+```bash
+monvif diagnose --file cameras.tsv --user <user> \
+  [--format table|json|markdown] [--output <file>] \
+  [--only <name-or-ip>] \
+  [--timeout <duration>] [--camera-timeout <duration>] \
+  [--concurrency <n>] [--rtsp-port <port>]
+```
+
+Runs a comprehensive health check on every camera in the inventory file.
+Per-camera checks:
+
+1. TCP connect to ONVIF port
+2. TCP connect to RTSP port (default 554)
+3. ONVIF authentication and device info (manufacturer, model, firmware)
+4. Capabilities (service endpoint URLs)
+5. Media profiles (count and tokens)
+6. Stream URI (RTSP, first profile; credentials redacted)
+7. Snapshot URI (credentials redacted)
+8. Imaging settings read
+9. Network configuration read
+
+Per-camera status:
+
+| Status | Meaning |
+|--------|---------|
+| `OK`   | All core checks passed |
+| `WARN` | Core OK; optional checks (snapshot/imaging/network) had issues |
+| `FAIL` | TCP unreachable, auth failed, no profiles, or no stream URI |
+
+WS-Discovery check is skipped by default (pass `--skip-discovery=false` once
+implemented; many ONVIF cameras do not respond to multicast discovery even when
+fully functional).
+
+**Recommended first run:**
+
+```bash
+./monvif diagnose --file cameras.tsv --user ha --quick
+```
+
+`--quick` skips snapshot URI, imaging, network, and RTSP checks, leaving only
+the core health checks (TCP, auth, capabilities, profiles, stream URI).
+With default concurrency of 4 and 6 local cameras, `--quick` typically
+completes in under 20 seconds.
+
+```bash
+export MONVIF_PASSWORD=secret
+
+# Quick check — recommended starting point
+./monvif diagnose --file cameras.tsv --user ha --quick
+
+# All cameras at once (fastest for small inventories)
+./monvif diagnose --file cameras.tsv --user ha --quick --concurrency 6
+
+# Debug one camera by name
+./monvif diagnose --file cameras.tsv --user ha --quick --only veranda
+./monvif --debug diagnose --file cameras.tsv --user ha --quick --only veranda
+
+# Serial execution (useful for debugging)
+./monvif diagnose --file cameras.tsv --user ha --quick --concurrency 1
+
+# Full diagnostics with 3s TCP timeout and 60s per-camera cap
+./monvif diagnose --file cameras.tsv --user ha --timeout 3s --camera-timeout 60s
+
+# JSON output for scripting
+./monvif diagnose --file cameras.tsv --user ha --quick --format json | jq .
+
+# Markdown report saved to file
+./monvif diagnose --file cameras.tsv --user ha --format markdown --output diagnostics.md
+
+# Skip individual expensive checks
+./monvif diagnose --file cameras.tsv --user ha --skip-imaging --skip-network
+
+# Debug ONVIF calls
+./monvif --debug diagnose --file cameras.tsv --user ha --quick
+```
+
+**Timeout and concurrency flags:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--timeout` | `5s` | TCP dial timeout per low-level check |
+| `--camera-timeout` | `60s` | Max total time per active camera |
+| `--concurrency` | `4` | Number of cameras diagnosed simultaneously |
+
+The per-camera timeout starts when a worker slot is acquired, not when the
+camera is queued. A camera waiting for a free slot can never time out while
+idle. If a camera does exceed its budget, any checks that completed before the
+timeout are preserved in the output row.
+
+**Skip flags:**
+
+| Flag | Skips |
+|------|-------|
+| `--quick` | snapshot, imaging, network, RTSP TCP check |
+| `--skip-snapshot` | snapshot URI check |
+| `--skip-imaging` | imaging settings check |
+| `--skip-network` | network configuration check |
+| `--skip-rtsp` | TCP RTSP port check |
+| `--skip-discovery` | WS-Discovery (default: always skipped) |
+
+Skipped checks show `skip` in table output and do not count as failures.
+
+Diagnostics are **read-only** — no camera settings are changed.
+
 ### version
 
 ```bash

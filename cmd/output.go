@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	formatTable = "table"
-	formatJSON  = "json"
+	formatTable    = "table"
+	formatJSON     = "json"
+	formatMarkdown = "markdown"
 )
 
 func addFormatFlag(cmd *cobra.Command, target *string, defaultVal string) {

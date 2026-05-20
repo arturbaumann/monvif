@@ -40,4 +40,5 @@ func init() {
 	rootCmd.AddCommand(imagingCmd)
 	rootCmd.AddCommand(networkCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(diagnoseCmd)
 }
