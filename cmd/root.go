@@ -35,5 +35,7 @@ func init() {
 	rootCmd.AddCommand(capabilitiesCmd)
 	rootCmd.AddCommand(profilesCmd)
 	rootCmd.AddCommand(streamURICmd)
+	rootCmd.AddCommand(snapshotURICmd)
 	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(imagingCmd)
 }

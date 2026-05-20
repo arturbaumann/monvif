@@ -105,30 +105,83 @@ func (c *Client) GetProfiles(ctx context.Context) ([]Profile, error) {
 	return profiles, nil
 }
 
-// GetStreamURI returns the RTSP stream URI for the given profile token.
-// If token is empty, the first available profile is used.
-func (c *Client) GetStreamURI(ctx context.Context, token string) (string, string, error) {
-	if token == "" {
-		profiles, err := c.GetProfiles(ctx)
-		if err != nil {
-			return "", "", err
-		}
-		if len(profiles) == 0 {
-			return "", "", fmt.Errorf("no media profiles available")
-		}
-		token = profiles[0].Token
-	}
+// StreamURIOptions configures stream URI transport.
+type StreamURIOptions struct {
+	Transport string // rtsp (default), tcp, http, udp
+}
 
+// GetStreamURI returns the stream URI for the given profile token.
+// If token is empty, the first available profile is used.
+// Returns profileToken, profileName, uri.
+func (c *Client) GetStreamURI(ctx context.Context, token string, opts StreamURIOptions) (profileToken, profileName, uri string, err error) {
+	profileToken, profileName, err = c.resolveProfile(ctx, token)
+	if err != nil {
+		return
+	}
+	protocol := streamTransportProtocol(opts.Transport)
 	resp, err := sdkmedia.Call_GetStreamUri(ctx, c.dev, media.GetStreamUri{
-		ProfileToken: onvifxsd.ReferenceToken(token),
+		ProfileToken: onvifxsd.ReferenceToken(profileToken),
 		StreamSetup: onvifxsd.StreamSetup{
 			Stream:    onvifxsd.StreamType("RTP-Unicast"),
-			Transport: onvifxsd.Transport{Protocol: onvifxsd.TransportProtocol("RTSP")},
+			Transport: onvifxsd.Transport{Protocol: protocol},
 		},
 	})
 	if err != nil {
-		return token, "", fmt.Errorf("GetStreamUri: %w", err)
+		err = fmt.Errorf("GetStreamUri: %w", err)
+		return
 	}
-	uri := strings.TrimSpace(string(resp.MediaUri.Uri))
-	return token, uri, nil
+	uri = strings.TrimSpace(string(resp.MediaUri.Uri))
+	return
+}
+
+// GetSnapshotURI returns the snapshot URI for the given profile token.
+// If token is empty, the first available profile is used.
+// Returns profileToken, profileName, uri.
+func (c *Client) GetSnapshotURI(ctx context.Context, token string) (profileToken, profileName, uri string, err error) {
+	profileToken, profileName, err = c.resolveProfile(ctx, token)
+	if err != nil {
+		return
+	}
+	resp, err := sdkmedia.Call_GetSnapshotUri(ctx, c.dev, media.GetSnapshotUri{
+		ProfileToken: onvifxsd.ReferenceToken(profileToken),
+	})
+	if err != nil {
+		err = fmt.Errorf("GetSnapshotUri: %w", err)
+		return
+	}
+	uri = strings.TrimSpace(string(resp.MediaUri.Uri))
+	return
+}
+
+func (c *Client) resolveProfile(ctx context.Context, token string) (resolvedToken, profileName string, err error) {
+	profiles, err := c.GetProfiles(ctx)
+	if err != nil {
+		return
+	}
+	if len(profiles) == 0 {
+		err = fmt.Errorf("no media profiles available")
+		return
+	}
+	if token == "" {
+		return profiles[0].Token, profiles[0].Name, nil
+	}
+	for _, p := range profiles {
+		if p.Token == token {
+			return p.Token, p.Name, nil
+		}
+	}
+	return token, "", nil
+}
+
+func streamTransportProtocol(transport string) onvifxsd.TransportProtocol {
+	switch strings.ToLower(transport) {
+	case "tcp":
+		return "TCP"
+	case "http":
+		return "HTTP"
+	case "udp":
+		return "UDP"
+	default:
+		return "RTSP"
+	}
 }

@@ -79,10 +79,12 @@ MONVIF_PASSWORD=secret monvif check --file cameras.tsv --user admin --capabiliti
 ```bash
 export MONVIF_PASSWORD=secret
 
-monvif info         --ip 192.168.1.10 --user admin
-monvif capabilities --ip 192.168.1.10 --user admin
-monvif profiles     --ip 192.168.1.10 --user admin
-monvif stream-uri   --ip 192.168.1.10 --user admin
+monvif info          --ip 192.168.1.10 --user admin
+monvif capabilities  --ip 192.168.1.10 --user admin
+monvif profiles      --ip 192.168.1.10 --user admin
+monvif stream-uri    --ip 192.168.1.10 --user admin
+monvif snapshot-uri  --ip 192.168.1.10 --user admin
+monvif imaging get   --ip 192.168.1.10 --user admin
 ```
 
 ## Command reference
@@ -160,11 +162,88 @@ Lists media profiles (token and name).
 ### stream-uri
 
 ```bash
-monvif stream-uri --ip <ip> --user <user> [--port <port>] [--profile-token <token>] [--format table|json]
+monvif stream-uri --ip <ip> --user <user> [--port <port>] \
+  [--profile-token <token>] [--transport rtsp|tcp|http|udp] [--format table|json]
 ```
 
-Returns the RTSP stream URI for a profile. Uses the first profile if
-`--profile-token` is omitted.
+Returns the stream URI for a profile. Uses the first profile if
+`--profile-token` is omitted. Default transport is `rtsp`. Credentials
+embedded in the returned URI are automatically redacted.
+
+### snapshot-uri
+
+```bash
+monvif snapshot-uri --ip <ip> --user <user> [--port <port>] \
+  [--profile-token <token>] [--format table|json]
+```
+
+Returns the snapshot (JPEG) URI for a profile. Credentials embedded in the
+returned URI are redacted.
+
+### imaging get
+
+```bash
+monvif imaging get --ip <ip> --user <user> [--port <port>] [--format table|json]
+```
+
+Reads current imaging settings: brightness, contrast, saturation, sharpness,
+backlight mode, exposure mode, white balance mode, IR cut filter, and WDR mode.
+
+Table output example:
+
+```
+FIELD               VALUE
+brightness          50
+contrast            50
+saturation          50
+sharpness           50
+exposure_mode       Auto
+white_balance_mode  Auto
+ir_cut_filter       Auto
+```
+
+JSON output example:
+
+```json
+{
+  "brightness": 50,
+  "contrast": 50,
+  "saturation": 50,
+  "sharpness": 50,
+  "exposure_mode": "Auto",
+  "white_balance_mode": "Auto",
+  "ir_cut_filter": "Auto"
+}
+```
+
+### imaging set
+
+```bash
+monvif imaging set --ip <ip> --user <user> [--port <port>] \
+  [--brightness N] [--contrast N] [--saturation N] [--sharpness N] \
+  (--yes | --dry-run) [--format table|json]
+```
+
+Updates one or more imaging settings. **Requires `--yes` to apply changes.**
+Use `--dry-run` to preview the before/after values without sending them to
+the camera.
+
+```bash
+# Preview what would change:
+monvif imaging set --ip 192.168.1.10 --user admin --brightness 60 --dry-run
+
+# Apply changes:
+monvif imaging set --ip 192.168.1.10 --user admin --brightness 60 --yes
+```
+
+Table output example:
+
+```
+FIELD       BEFORE  AFTER (applied)
+brightness  50      60
+```
+
+Only the fields you specify are changed — all other settings are preserved.
 
 ## Security
 

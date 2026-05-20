@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -28,4 +29,20 @@ func writeJSON(v any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
+}
+
+func redactURICredentials(rawURI string) string {
+	u, err := url.Parse(rawURI)
+	if err != nil || u.User == nil {
+		return rawURI
+	}
+	// Rebuild manually — url.User("***").String() would percent-encode the asterisks.
+	out := u.Scheme + "://***@" + u.Host + u.EscapedPath()
+	if u.RawQuery != "" {
+		out += "?" + u.RawQuery
+	}
+	if u.Fragment != "" {
+		out += "#" + u.Fragment
+	}
+	return out
 }

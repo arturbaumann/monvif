@@ -19,6 +19,7 @@ var streamURICmd = &cobra.Command{
 var (
 	streamFlags        cameraFlags
 	streamProfileToken string
+	streamTransport    string
 	streamFormat       string
 )
 
@@ -28,13 +29,26 @@ func init() {
 	streamURICmd.Flags().StringVar(&streamFlags.user, "user", "", "username (required)")
 	streamURICmd.Flags().StringVar(&streamFlags.password, "password", "", "password (or set MONVIF_PASSWORD)")
 	streamURICmd.Flags().StringVar(&streamProfileToken, "profile-token", "", "profile token (default: first profile)")
+	streamURICmd.Flags().StringVar(&streamTransport, "transport", "rtsp", "transport protocol: rtsp, tcp, http, or udp")
 	streamURICmd.MarkFlagRequired("ip")
 	streamURICmd.MarkFlagRequired("user")
 	addFormatFlag(streamURICmd, &streamFormat, formatTable)
 }
 
+func validateTransport(t string) error {
+	switch t {
+	case "rtsp", "tcp", "http", "udp":
+		return nil
+	default:
+		return fmt.Errorf("invalid --transport %q: must be rtsp, tcp, http, or udp", t)
+	}
+}
+
 func runStreamURI(cmd *cobra.Command, args []string) error {
 	if err := validateFormat(streamFormat); err != nil {
+		return err
+	}
+	if err := validateTransport(streamTransport); err != nil {
 		return err
 	}
 
@@ -48,21 +62,26 @@ func runStreamURI(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	token, uri, err := client.GetStreamURI(context.Background(), streamProfileToken)
+	token, name, uri, err := client.GetStreamURI(context.Background(), streamProfileToken, camera.StreamURIOptions{
+		Transport: streamTransport,
+	})
 	if err != nil {
 		return err
 	}
 
+	uri = redactURICredentials(uri)
+
 	if streamFormat == formatJSON {
 		return writeJSON(struct {
-			Profile string `json:"profile"`
-			URI     string `json:"uri"`
-		}{Profile: token, URI: uri})
+			ProfileToken string `json:"profile_token"`
+			ProfileName  string `json:"profile_name,omitempty"`
+			URI          string `json:"uri"`
+		}{ProfileToken: token, ProfileName: name, URI: uri})
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "PROFILE\tURI")
-	fmt.Fprintf(w, "%s\t%s\n", token, uri)
+	fmt.Fprintln(w, "PROFILE_TOKEN\tPROFILE_NAME\tURI")
+	fmt.Fprintf(w, "%s\t%s\t%s\n", token, name, uri)
 	w.Flush()
 	return nil
 }
