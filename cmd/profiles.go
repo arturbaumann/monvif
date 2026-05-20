@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/artur/monvif/internal/camera"
+	"github.com/arturbaumann/monvif/internal/camera"
 	"github.com/spf13/cobra"
 )
 

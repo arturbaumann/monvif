@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/artur/monvif/cmd"
+	"github.com/arturbaumann/monvif/cmd"
 )
 
 func main() {

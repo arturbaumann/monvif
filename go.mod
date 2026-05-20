@@ -1,4 +1,4 @@
-module github.com/artur/monvif
+module github.com/arturbaumann/monvif
 
 go 1.22.4
 

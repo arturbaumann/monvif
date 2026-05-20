@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/artur/monvif/internal/camera"
+	"github.com/arturbaumann/monvif/internal/camera"
 )
 
 func TestToCheckJSON_Basic(t *testing.T) {

@@ -12,8 +12,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/artur/monvif/internal/camera"
-	"github.com/artur/monvif/internal/inventory"
+	"github.com/arturbaumann/monvif/internal/camera"
+	"github.com/arturbaumann/monvif/internal/inventory"
 	"github.com/spf13/cobra"
 )
 

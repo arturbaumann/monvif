@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/artur/monvif/internal/discovery"
+	"github.com/arturbaumann/monvif/internal/discovery"
 	"github.com/spf13/cobra"
 )
 

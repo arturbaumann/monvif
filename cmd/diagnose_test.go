@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/artur/monvif/internal/camera"
+	"github.com/arturbaumann/monvif/internal/camera"
 )
 
 // ── status scoring ────────────────────────────────────────────────────────────
