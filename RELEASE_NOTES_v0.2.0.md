@@ -12,10 +12,15 @@
 
 Tested with:
 
-```sh
+~~~sh
 go test ./...
 go build -o monvif .
 ./monvif check --file cameras.tsv --user ha
 ./monvif check --file cameras.tsv --user ha --capabilities
 ./monvif check --file cameras.tsv --user ha --format json | jq .
 ./monvif check --file cameras.tsv --user ha --capabilities --format json | jq .
+~~~
+
+## Known limitation
+
+`monvif discover` only finds cameras that respond to WS-Discovery multicast UDP 3702. Some ONVIF cameras work with direct IP queries but do not appear in discovery.
