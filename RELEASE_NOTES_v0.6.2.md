@@ -2,7 +2,7 @@
 
 ## Highlights
 
-- Fix remaining README/install references from `github.com/artur/monvif` to `github.com/arturbaumann/monvif`.
+- Fix remaining README/install references from `github.com/arturbaumann/monvif` to `github.com/arturbaumann/monvif`.
 - Keep Go module path aligned with the public GitHub repository.
 
 ## Validation

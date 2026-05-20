@@ -97,7 +97,7 @@ to 4 cameras at the same time, reducing total runtime roughly proportionally.
 ## Upgrade
 
 ```bash
-go install github.com/artur/monvif@v0.6.0
+go install github.com/arturbaumann/monvif@v0.6.0
 # or use the install script:
-VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.sh | bash
+VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/arturbaumann/monvif/main/scripts/install.sh | bash
 ```

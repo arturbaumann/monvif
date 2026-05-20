@@ -7,7 +7,7 @@ A Linux CLI tool for ONVIF camera discovery and querying.
 ### From a GitHub release (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/arturbaumann/monvif/main/scripts/install.sh | bash
 ```
 
 The script detects your OS and architecture, downloads the correct binary from
@@ -15,7 +15,7 @@ the [latest release](https://github.com/arturbaumann/monvif/releases/latest), an
 installs it to `~/.local/bin`. Override the target directory:
 
 ```bash
-INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.sh | bash
+INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/arturbaumann/monvif/main/scripts/install.sh | bash
 ```
 
 A specific version can be pinned with `VERSION=v0.5.0`.

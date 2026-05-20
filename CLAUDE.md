@@ -10,7 +10,7 @@ Requires Go 1.22+. The binary is a single static Linux CLI.
 
 ## Module path
 
-`github.com/artur/monvif`
+`github.com/arturbaumann/monvif`
 
 ## Package layout
 
