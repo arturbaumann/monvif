@@ -39,4 +39,5 @@ func init() {
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(imagingCmd)
 	rootCmd.AddCommand(networkCmd)
+	rootCmd.AddCommand(versionCmd)
 }

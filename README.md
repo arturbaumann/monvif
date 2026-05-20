@@ -2,14 +2,37 @@
 
 A Linux CLI tool for ONVIF camera discovery and querying.
 
-## Install / Build
+## Installation
+
+### From a GitHub release (recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.sh | bash
+```
+
+The script detects your OS and architecture, downloads the correct binary from
+the [latest release](https://github.com/artur/monvif/releases/latest), and
+installs it to `~/.local/bin`. Override the target directory:
+
+```bash
+INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.sh | bash
+```
+
+A specific version can be pinned with `VERSION=v0.5.0`.
+
+### With `go install`
+
+```bash
+go install github.com/artur/monvif@latest
+```
+
+### Build from source
 
 ```bash
 git clone https://github.com/artur/monvif
 cd monvif
-go build -o monvif .
-# Optionally install to $GOPATH/bin
-go install .
+make build   # embeds version, commit, and date
+# or: go build -o monvif .
 ```
 
 Requires Go 1.22+.
@@ -323,8 +346,33 @@ monvif info --ip 192.168.1.42 --port 8080 --user admin
 
 Default ONVIF port is 80.
 
+### version
+
+```bash
+monvif version
+```
+
+Prints the version, commit hash, build date, and Go runtime version. Example
+output: `monvif v0.5.0 (commit abc1234, built 2026-05-20T12:00:00Z, go1.22.4)`.
+
+## Release
+
+Releases are built automatically when a version tag is pushed:
+
+```bash
+git tag v0.5.0
+git push origin v0.5.0
+```
+
+The GitHub Actions release workflow builds binaries for Linux and macOS on
+amd64 and arm64, packages each as a `.tar.gz` archive containing the binary,
+`README.md`, and `LICENSE`, then publishes a GitHub Release with auto-generated
+release notes.
+
 ## Run tests
 
 ```bash
 go test ./...
+# or via Make:
+make test
 ```
