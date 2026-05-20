@@ -1,3 +1,7 @@
-# name	ip	port
+# Inventory file for monvif check.
+# Format: name<TAB>ip<TAB>port
+# Do not store passwords here. Use the MONVIF_PASSWORD environment variable.
+#
+# name		ip		port
 front-door	192.168.1.10	80
-garage	192.168.1.11	81
+garage		192.168.1.11	80

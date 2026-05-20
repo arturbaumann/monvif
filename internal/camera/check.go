@@ -7,9 +7,14 @@ import (
 	"time"
 )
 
+// StageFunc is called with a short description at each step of Check.
+// A nil value is safe; Check ignores it.
+type StageFunc func(stage string)
+
 // CheckOptions controls which optional queries Check performs.
 type CheckOptions struct {
 	WithCapabilities bool
+	Stage            StageFunc
 }
 
 // CheckResult is the outcome of probing one camera.
@@ -29,6 +34,12 @@ type CheckResult struct {
 func Check(ctx context.Context, name, host string, port int, username, password string, opts CheckOptions) CheckResult {
 	r := CheckResult{Name: name, IP: host, Port: port}
 
+	stage := opts.Stage
+	if stage == nil {
+		stage = func(string) {}
+	}
+
+	stage("connecting")
 	addr := fmt.Sprintf("%s:%d", host, port)
 	conn, err := (&net.Dialer{Timeout: 3 * time.Second}).DialContext(ctx, "tcp", addr)
 	if err != nil {
@@ -38,6 +49,7 @@ func Check(ctx context.Context, name, host string, port int, username, password 
 	conn.Close()
 	r.Reachable = true
 
+	stage("querying device info")
 	client, err := New(host, port, username, password)
 	if err != nil {
 		r.Err = fmt.Sprintf("connect: %v", err)
@@ -54,6 +66,7 @@ func Check(ctx context.Context, name, host string, port int, username, password 
 	r.Info = info
 
 	if opts.WithCapabilities {
+		stage("querying capabilities")
 		caps, err := client.GetCapabilities(ctx)
 		if err != nil {
 			r.Err = fmt.Sprintf("capabilities: %v", err)
