@@ -11,7 +11,7 @@ curl -fsSL https://raw.githubusercontent.com/artur/monvif/main/scripts/install.s
 ```
 
 The script detects your OS and architecture, downloads the correct binary from
-the [latest release](https://github.com/artur/monvif/releases/latest), and
+the [latest release](https://github.com/arturbaumann/monvif/releases/latest), and
 installs it to `~/.local/bin`. Override the target directory:
 
 ```bash
@@ -23,13 +23,13 @@ A specific version can be pinned with `VERSION=v0.5.0`.
 ### With `go install`
 
 ```bash
-go install github.com/artur/monvif@latest
+go install github.com/arturbaumann/monvif@latest
 ```
 
 ### Build from source
 
 ```bash
-git clone https://github.com/artur/monvif
+git clone https://github.com/arturbaumann/monvif
 cd monvif
 make build   # embeds version, commit, and date
 # or: go build -o monvif .

@@ -25,7 +25,7 @@ jobs:
           COMMIT: ${{ github.sha }}
           DATE: ${{ github.event.repository.pushed_at }}
         run: |
-          MODULE=github.com/artur/monvif
+          MODULE=github.com/arturbaumann/monvif
           LDFLAGS="-X ${MODULE}/cmd.version=${VERSION} -X ${MODULE}/cmd.commit=${COMMIT:0:7} -X ${MODULE}/cmd.date=${DATE}"
           mkdir -p dist
           for GOOS in linux darwin; do
