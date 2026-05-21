@@ -108,6 +108,10 @@ monvif profiles      --ip 192.168.1.10 --user admin
 monvif stream-uri    --ip 192.168.1.10 --user admin
 monvif snapshot-uri  --ip 192.168.1.10 --user admin
 monvif imaging get   --ip 192.168.1.10 --user admin
+
+# List profiles and stream URIs; add --probe to analyse each stream with ffprobe:
+monvif stream profiles --ip 192.168.1.10 --user admin
+monvif stream profiles --ip 192.168.1.10 --user admin --probe
 ```
 
 ## Command reference
@@ -182,6 +186,107 @@ monvif profiles --ip <ip> --user <user> [--port <port>] [--format table|json]
 
 Lists media profiles (token and name).
 
+### stream profiles
+
+```bash
+monvif stream profiles --ip <ip> --user <user> [--port <port>] \
+  [--probe] [--transport rtsp|tcp|http|udp] [--probe-timeout <duration>] \
+  [--format table|json]
+```
+
+Lists all ONVIF media profiles together with their RTSP stream URIs.
+With `--probe`, runs `ffprobe` on each URI and reports codec, resolution,
+FPS, bitrate, and whether the stream is reachable and decodable.
+
+**Without `--probe`** (no ffprobe required):
+
+```
+TOKEN            NAME            URI
+protoken_ch0001  proname_ch0001  rtsp://172.17.17.27:554/1/1
+protoken_ch0002  proname_ch0002  rtsp://172.17.17.27:554/1/2
+```
+
+**With `--probe`** (all streams healthy):
+
+```
+TOKEN            NAME            CODEC  RESOLUTION  FPS  BITRATE  WORKS
+protoken_ch0001  proname_ch0001  h264   2560x1440   25   -        yes
+protoken_ch0002  proname_ch0002  h264   704x576     15   -        yes
+protoken_ch0003  proname_ch0003  h264   352x288     10   -        yes
+```
+
+`BITRATE` shows `-` when the camera stream does not report bitrate data.
+When reported, it is formatted compactly: `4.2M`, `512k`, `800b`.
+
+The `ERROR` column is added only when at least one profile fails, keeping
+the clean-case output compact.
+
+```bash
+export MONVIF_PASSWORD=secret
+
+# List profiles and URIs (no external dependencies):
+monvif stream profiles --ip 172.17.17.27 --port 81 --user ha
+
+# Probe each stream (requires ffprobe):
+monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe
+
+# TCP transport — recommended for routed/WAN networks:
+monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --transport tcp
+
+# JSON output for scripting:
+monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --format json | jq .
+```
+
+JSON output has a **stable schema**: `bitrate` and `error` are always present
+regardless of probe result or camera capabilities, so automation scripts can
+rely on fixed field names without defensive null-checks.
+
+```json
+[
+  {
+    "token": "protoken_ch0001",
+    "name": "proname_ch0001",
+    "stream_uri": "rtsp://172.17.17.27:554/1/1",
+    "codec": "h264",
+    "width": 2560,
+    "height": 1440,
+    "resolution": "2560x1440",
+    "fps": 25,
+    "bitrate": "-",
+    "works": true,
+    "error": ""
+  }
+]
+```
+
+`bitrate` is `"-"` when the camera does not report it, and `"4.2M"` / `"512k"`
+when it does. `error` is `""` on success and a human-readable message on
+failure. `works` is absent when `--probe` is not used.
+
+Stream URIs are always redacted — credentials in the URI are replaced with `***`.
+Passwords sourced from `MONVIF_PASSWORD` or `--password` are never printed,
+even with `--debug`.
+
+**`ffprobe` is required only for `--probe`.** Basic profile listing works
+without it. Install ffprobe via FFmpeg:
+
+```bash
+# Debian/Ubuntu
+sudo apt update && sudo apt install -y ffmpeg
+
+# macOS
+brew install ffmpeg
+```
+
+Key flags:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--probe` | off | Run ffprobe on each stream URI |
+| `--transport` | `tcp` | RTSP transport: `rtsp`, `tcp`, `http`, `udp` |
+| `--probe-timeout` | `10s` | Per-stream ffprobe timeout |
+| `--format` | `table` | Output format: `table` or `json` |
+
 ### stream-uri
 
 ```bash
@@ -189,7 +294,7 @@ monvif stream-uri --ip <ip> --user <user> [--port <port>] \
   [--profile-token <token>] [--transport rtsp|tcp|http|udp] [--format table|json]
 ```
 
-Returns the stream URI for a profile. Uses the first profile if
+Returns the stream URI for a single profile. Uses the first profile if
 `--profile-token` is omitted. Default transport is `rtsp`. Credentials
 embedded in the returned URI are automatically redacted.
 

@@ -41,4 +41,5 @@ func init() {
 	rootCmd.AddCommand(networkCmd)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(diagnoseCmd)
+	rootCmd.AddCommand(streamCmd)
 }

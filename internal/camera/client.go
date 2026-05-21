@@ -134,6 +134,24 @@ func (c *Client) GetStreamURI(ctx context.Context, token string, opts StreamURIO
 	return
 }
 
+// GetStreamURIForToken returns the RTSP stream URI for a known profile token
+// without calling GetProfiles. Use this when the caller already holds the
+// profile list to avoid a redundant ONVIF round-trip per profile.
+func (c *Client) GetStreamURIForToken(ctx context.Context, token string, opts StreamURIOptions) (string, error) {
+	protocol := streamTransportProtocol(opts.Transport)
+	resp, err := sdkmedia.Call_GetStreamUri(ctx, c.dev, media.GetStreamUri{
+		ProfileToken: onvifxsd.ReferenceToken(token),
+		StreamSetup: onvifxsd.StreamSetup{
+			Stream:    onvifxsd.StreamType("RTP-Unicast"),
+			Transport: onvifxsd.Transport{Protocol: protocol},
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("GetStreamUri: %w", err)
+	}
+	return strings.TrimSpace(string(resp.MediaUri.Uri)), nil
+}
+
 // GetSnapshotURI returns the snapshot URI for the given profile token.
 // If token is empty, the first available profile is used.
 // Returns profileToken, profileName, uri.
