@@ -202,8 +202,8 @@ FPS, bitrate, and whether the stream is reachable and decodable.
 
 ```
 TOKEN            NAME            URI
-protoken_ch0001  proname_ch0001  rtsp://172.17.17.27:554/1/1
-protoken_ch0002  proname_ch0002  rtsp://172.17.17.27:554/1/2
+protoken_ch0001  proname_ch0001  rtsp://192.168.1.27:554/1/1
+protoken_ch0002  proname_ch0002  rtsp://192.168.1.27:554/1/2
 ```
 
 **With `--probe`** (all streams healthy):
@@ -225,16 +225,16 @@ the clean-case output compact.
 export MONVIF_PASSWORD=secret
 
 # List profiles and URIs (no external dependencies):
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha
 
 # Probe each stream (requires ffprobe):
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha --probe
 
 # TCP transport — recommended for routed/WAN networks:
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --transport tcp
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha --probe --transport tcp
 
 # JSON output for scripting:
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --format json | jq .
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha --probe --format json | jq .
 ```
 
 JSON output has a **stable schema**: `bitrate` and `error` are always present
@@ -246,7 +246,7 @@ rely on fixed field names without defensive null-checks.
   {
     "token": "protoken_ch0001",
     "name": "proname_ch0001",
-    "stream_uri": "rtsp://172.17.17.27:554/1/1",
+    "stream_uri": "rtsp://192.168.1.27:554/1/1",
     "codec": "h264",
     "width": 2560,
     "height": 1440,
@@ -381,15 +381,15 @@ Read-only network inspection commands:
 export MONVIF_PASSWORD=secret
 
 # Full network summary
-./monvif network get --ip 172.17.17.27 --port 81 --user ha
-./monvif network get --ip 172.17.17.27 --port 81 --user ha --format json | jq .
+./monvif network get --ip 192.168.1.27 --port 81 --user ha
+./monvif network get --ip 192.168.1.27 --port 81 --user ha --format json | jq .
 
 # Individual queries
-./monvif network interfaces --ip 172.17.17.27 --port 81 --user ha
-./monvif network protocols  --ip 172.17.17.27 --port 81 --user ha
-./monvif network dns        --ip 172.17.17.27 --port 81 --user ha
-./monvif network ntp        --ip 172.17.17.27 --port 81 --user ha
-./monvif network hostname   --ip 172.17.17.27 --port 81 --user ha
+./monvif network interfaces --ip 192.168.1.27 --port 81 --user ha
+./monvif network protocols  --ip 192.168.1.27 --port 81 --user ha
+./monvif network dns        --ip 192.168.1.27 --port 81 --user ha
+./monvif network ntp        --ip 192.168.1.27 --port 81 --user ha
+./monvif network hostname   --ip 192.168.1.27 --port 81 --user ha
 ```
 
 Always run `network interfaces` first to find the interface token before using `set-ip`.
@@ -398,22 +398,22 @@ Network write commands (require `--yes` to apply, support `--dry-run` to preview
 
 ```bash
 # Preview IP change (no modification)
-./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
+./monvif network set-ip --ip 192.168.1.27 --port 81 --user ha \
   --interface <token> --dhcp --dry-run
 
-./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
-  --interface <token> --address 172.17.17.27 --prefix-length 24 \
-  --gateway 172.17.17.1 --dry-run
+./monvif network set-ip --ip 192.168.1.27 --port 81 --user ha \
+  --interface <token> --address 192.168.1.27 --prefix-length 24 \
+  --gateway 192.168.1.1 --dry-run
 
 # Preview DNS/NTP/hostname changes
-./monvif network set-dns      --ip 172.17.17.27 --port 81 --user ha --server 172.17.17.1 --dry-run
-./monvif network set-ntp      --ip 172.17.17.27 --port 81 --user ha --server se.pool.ntp.org --dry-run
-./monvif network set-hostname --ip 172.17.17.27 --port 81 --user ha --name front --dry-run
+./monvif network set-dns      --ip 192.168.1.27 --port 81 --user ha --server 192.168.1.1 --dry-run
+./monvif network set-ntp      --ip 192.168.1.27 --port 81 --user ha --server se.pool.ntp.org --dry-run
+./monvif network set-hostname --ip 192.168.1.27 --port 81 --user ha --name front --dry-run
 
 # Apply (use only when physically able to recover the camera):
-./monvif network set-ip --ip 172.17.17.27 --port 81 --user ha \
-  --interface <token> --address 172.17.17.27 --prefix-length 24 \
-  --gateway 172.17.17.1 --yes
+./monvif network set-ip --ip 192.168.1.27 --port 81 --user ha \
+  --interface <token> --address 192.168.1.27 --prefix-length 24 \
+  --gateway 192.168.1.1 --yes
 ```
 
 **Network safety rules:**

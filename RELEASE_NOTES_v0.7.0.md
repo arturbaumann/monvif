@@ -14,20 +14,20 @@ FPS, and bitrate.
 ```bash
 export MONVIF_PASSWORD=secret
 
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha
 ```
 
 ```
 TOKEN            NAME            URI
-protoken_ch0001  proname_ch0001  rtsp://172.17.17.27:554/1/1
-protoken_ch0002  proname_ch0002  rtsp://172.17.17.27:554/1/2
-protoken_ch0003  proname_ch0003  rtsp://172.17.17.27:554/1/3
+protoken_ch0001  proname_ch0001  rtsp://192.168.1.27:554/1/1
+protoken_ch0002  proname_ch0002  rtsp://192.168.1.27:554/1/2
+protoken_ch0003  proname_ch0003  rtsp://192.168.1.27:554/1/3
 ```
 
 **With `--probe`** — requires `ffprobe` (see below):
 
 ```bash
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --transport tcp
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha --probe --transport tcp
 ```
 
 ```
@@ -53,7 +53,7 @@ protoken_ch0002  proname_ch0002  -      -           -    -        no     RTSP au
 fixed field names without defensive null-checks:
 
 ```bash
-monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --transport tcp --format json | jq .
+monvif stream profiles --ip 192.168.1.27 --port 81 --user ha --probe --transport tcp --format json | jq .
 ```
 
 ```json
@@ -61,7 +61,7 @@ monvif stream profiles --ip 172.17.17.27 --port 81 --user ha --probe --transport
   {
     "token": "protoken_ch0001",
     "name": "proname_ch0001",
-    "stream_uri": "rtsp://172.17.17.27:554/1/1",
+    "stream_uri": "rtsp://192.168.1.27:554/1/1",
     "codec": "h264",
     "width": 2560,
     "height": 1440,
@@ -124,7 +124,7 @@ shows `no` and the `ERROR` column reports:
 ### RTSP auth failed on all streams with `--probe` (fixed)
 
 ONVIF cameras return stream URIs without embedded credentials
-(e.g. `rtsp://172.17.17.27:554/1/1`). The initial v0.7 implementation passed
+(e.g. `rtsp://192.168.1.27:554/1/1`). The initial v0.7 implementation passed
 this bare URI to ffprobe, which then failed RTSP digest authentication.
 
 **Fix:** Before invoking ffprobe, ONVIF credentials are injected into the
