@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="artur/monvif"
+REPO="arturbaumann/monvif"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 BINARY="monvif"
 
