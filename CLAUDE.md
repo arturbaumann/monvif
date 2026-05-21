@@ -46,3 +46,23 @@ go test ./...
 
 Unit tests live alongside the code (`_test.go`). Do not add integration tests
 that dial real cameras to the test suite.
+
+cat >> CLAUDE.md <<'EOF'
+
+## Development workflow lessons
+
+- Work in small release-sized increments.
+- Preserve existing command behavior unless explicitly changing it.
+- Every new command must include help text, README examples, and tests where practical.
+- JSON output must be valid and must not be mixed with progress/debug text.
+- Progress and debug output must go to stderr.
+- Commands that modify camera state must support `--dry-run` and require `--yes`.
+- Never print passwords.
+- Never commit local camera inventory, private IPs, diagnostics output, or credentials.
+- Before release, run:
+  - `go fmt ./...`
+  - `go test ./...`
+  - `go build -o monvif .`
+  - Before release, check:
+    - `git grep "172\.17\.17\." || true`
+    - Treat pushed tags as immutable. Use patch releases for fixes.
